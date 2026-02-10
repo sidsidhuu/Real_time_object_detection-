@@ -2,31 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Real-Time Object Detection</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <div class="container center">
-    <h1>👁️ Welcome to Real-Time Object Detection</h1>
+  <main class="page">
+    <header class="hero">
+      <div class="hero-text">
+        <p class="eyebrow">Live Vision System</p>
+        <h1>Real-time object detection with a clean, fast workflow.</h1>
+        <p class="subhead">Start a session and track detections instantly. Snapshots are saved per class for quick review.</p>
+      </div>
+      <div class="hero-card">
+        <h2>Start a session</h2>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div class="flash-messages">
-          {% for category, message in messages %}
-            <div class="flash {{ category }}">{{ message }}</div>
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-messages">
+              {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
 
-    <form action="/start" method="POST">
-      <input type="text" name="session_name" placeholder="Enter session name (optional)">
-      <button class="btn start-btn" type="submit">▶ Start Detection</button>
-    </form>
+        <form action="/start" method="POST" class="stack">
+          <label class="field">
+            <span>Session name (optional)</span>
+            <input
+              type="text"
+              name="session_name"
+              placeholder="e.g. lab_run_01"
+              maxlength="40"
+              pattern="[A-Za-z0-9 _-]+"
+            >
+            <small>Letters, numbers, spaces, hyphens, underscores.</small>
+          </label>
+          <button class="btn primary" type="submit">Start detection</button>
+        </form>
 
-    <form action="/exit" method="POST">
-      <button class="btn start-btn" type="submit">⛔ Exit</button>
-    </form>
-  </div>
+        <form action="/exit" method="POST">
+          <button class="btn ghost" type="submit">Exit</button>
+        </form>
+      </div>
+    </header>
+  </main>
 </body>
 </html>

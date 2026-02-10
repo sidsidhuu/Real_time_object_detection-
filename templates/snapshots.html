@@ -2,20 +2,37 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Session Snapshots</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <div class="container">
-    <h1>📸 Snapshots for Session: {{ session }}</h1>
-    {% for class_name, images in snapshots.items() %}
-      <h2>{{ class_name }}</h2>
-      <div class="row">
-        {% for img in images %}
-          <img src="{{ img }}" width="200" style="margin: 5px;" />
-        {% endfor %}
+  <main class="page">
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Snapshot archive</p>
+          <h1>Session: {{ session }}</h1>
+          <p class="muted">Browse saved frames by detected class.</p>
+        </div>
+        <a class="btn ghost" href="/">Back home</a>
       </div>
-    {% endfor %}
-  </div>
+
+      {% if snapshots %}
+        {% for class_name, images in snapshots.items() %}
+          <div class="snapshot-group">
+            <h2>{{ class_name }}</h2>
+            <div class="gallery">
+              {% for img in images %}
+                <img src="{{ img }}" loading="lazy" alt="{{ class_name }} snapshot" />
+              {% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="muted">No snapshots found for this session.</p>
+      {% endif %}
+    </section>
+  </main>
 </body>
 </html>

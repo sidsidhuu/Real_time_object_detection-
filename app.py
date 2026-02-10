@@ -1,6 +1,7 @@
 from flask import Flask, render_template, Response, request, redirect, url_for, jsonify, flash
 import cv2
 import os
+import re
 
 from db import init_db, list_detections, list_sessions
 from detector import DetectionService
@@ -17,6 +18,14 @@ def _get_env_int(name, default):
         return int(raw)
     except ValueError:
         return default
+
+
+def _sanitize_session_name(value):
+    if not value:
+        return ""
+    cleaned = value.strip().replace(" ", "_")
+    cleaned = re.sub(r"[^A-Za-z0-9_-]", "", cleaned)
+    return cleaned[:40]
 
 camera = None
 running = False
@@ -51,6 +60,8 @@ def generate_frames():
             break
 
         ret, buffer = cv2.imencode('.jpg', frame)
+        if not ret:
+            continue
         frame_bytes = buffer.tobytes()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
@@ -73,7 +84,13 @@ def start():
             flash("[INFO] Camera started successfully.", "success")
 
     session_input = request.form.get("session_name")
-    session_name = detector.start_session(session_input)
+    cleaned = _sanitize_session_name(session_input)
+    if session_input and not cleaned:
+        flash("[ERROR] Session name must use letters, numbers, hyphens, or underscores.", "error")
+        return redirect(url_for('index'))
+    if session_input and cleaned != session_input.strip().replace(" ", "_"):
+        flash("[INFO] Session name was normalized for safety.", "info")
+    session_name = detector.start_session(cleaned)
     running = True
     return redirect(url_for('detection', session=session_name))
 
