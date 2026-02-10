@@ -14,6 +14,10 @@ env/
 snapshots/
 static/snapshots/
 
+# Local data
+data/
+*.db
+
 # Model weights
 *.pt
 

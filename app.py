@@ -2,19 +2,37 @@ from flask import Flask, render_template, Response, request, redirect, url_for, 
 import cv2
 import os
 
+from db import init_db, list_detections, list_sessions
 from detector import DetectionService
 
 app = Flask(__name__)
 app.secret_key = "secret_key"
 
+
+def _get_env_int(name, default):
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        return default
+
 camera = None
 running = False
 session_name = None
 
+camera_index = _get_env_int("CAMERA_INDEX", 0)
+model_path = os.environ.get("MODEL_PATH", "yolov10n.pt")
+snapshot_dir = os.environ.get("SNAPSHOT_DIR", os.path.join("static", "snapshots"))
+db_path = os.environ.get("DETECTION_DB", os.path.join("data", "detections.db"))
+init_db(db_path)
+
 detector = DetectionService(
-    model_path="yolov10n.pt",
+    model_path=model_path,
     device="cpu",
-    output_dir=os.path.join("static", "snapshots"),
+    output_dir=snapshot_dir,
+    db_path=db_path,
 )
 
 
@@ -47,7 +65,7 @@ def index():
 def start():
     global camera, running, session_name
     if camera is None or not camera.isOpened():
-        camera = cv2.VideoCapture(0)
+        camera = cv2.VideoCapture(camera_index)
         if not camera.isOpened():
             flash("[ERROR] Failed to open the camera.", "error")
             return redirect(url_for('index'))
@@ -89,6 +107,9 @@ def stop():
 @app.route('/snapshots')
 def snapshots():
     session = request.args.get("session")
+    if not session:
+        flash("[ERROR] Session is required to view snapshots.", "error")
+        return redirect(url_for('index'))
     session_dir = os.path.join(detector.output_dir, session)
     snapshots = {}
 
@@ -107,6 +128,25 @@ def snapshots():
             snapshots[cls] = images
 
     return render_template('snapshots.html', session=session, snapshots=snapshots)
+
+
+@app.route('/api/sessions')
+def api_sessions():
+    return jsonify(sessions=list_sessions(db_path=db_path))
+
+
+@app.route('/api/detections')
+def api_detections():
+    session = request.args.get("session")
+    if not session:
+        return jsonify(error="session query parameter is required"), 400
+    limit = _get_env_int("DETECTIONS_LIMIT", 100)
+    return jsonify(detections=list_detections(session, limit=limit, db_path=db_path))
+
+
+@app.route('/health')
+def health():
+    return jsonify(status="ok")
 
 
 @app.route('/exit', methods=['POST'])

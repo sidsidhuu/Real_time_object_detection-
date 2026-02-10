@@ -4,12 +4,20 @@ from datetime import datetime
 import cv2
 from ultralytics import YOLO
 
+from db import record_detection
+
 
 class DetectionService:
-    def __init__(self, model_path="yolov10n.pt", device="cpu", output_dir=None):
+    def __init__(self, model_path="yolov10n.pt", device="cpu", output_dir=None, db_path=None):
         self.model_path = model_path
         self.device = device
         self.output_dir = output_dir or os.path.join("static", "snapshots")
+        self.db_path = db_path
+
+        if not os.path.exists(self.model_path):
+            raise FileNotFoundError(
+                f"Model file not found at '{self.model_path}'. Download yolov10n.pt and place it in the root."
+            )
 
         self.model = YOLO(self.model_path).to(self.device)
         self.session_name = None
@@ -48,6 +56,7 @@ class DetectionService:
                 timestamp = self._timestamp_str()
 
                 self._update_history(class_name, confidence, timestamp)
+                self._record_detection(class_name, confidence, timestamp)
                 self._draw_box(frame, x1, y1, x2, y2, class_name, confidence)
                 self._save_snapshot(frame, class_name, timestamp)
 
@@ -79,6 +88,9 @@ class DetectionService:
         safe_time = timestamp.replace(":", "_")
         snap_path = os.path.join(class_dir, f"{safe_time}.jpg")
         cv2.imwrite(snap_path, frame)
+
+    def _record_detection(self, class_name, confidence, timestamp):
+        record_detection(self.session_name, class_name, confidence, timestamp, db_path=self.db_path)
 
     def _refresh_latest_detections(self):
         self.latest_detections = []
