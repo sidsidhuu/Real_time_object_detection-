@@ -1,6 +1,5 @@
 import os
 import sqlite3
-from datetime import datetime
 
 
 DEFAULT_DB_PATH = os.path.join("data", "detections.db")
@@ -75,5 +74,3 @@ def list_detections(session_name, limit=100, db_path=DEFAULT_DB_PATH):
     return rows
 
 
-def now_iso():
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")

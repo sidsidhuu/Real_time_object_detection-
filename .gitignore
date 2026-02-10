@@ -18,6 +18,9 @@ static/snapshots/
 data/
 *.db
 
+# Tests
+.pytest_cache/
+
 # Model weights
 *.pt
 

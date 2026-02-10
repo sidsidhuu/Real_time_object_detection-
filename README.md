@@ -15,8 +15,12 @@ Real-time object detection from a webcam, powered by YOLOv10 and served through 
 ```
 .
 ├── app.py
+├── db.py
 ├── rt_object_detection.py
 ├── requirements.txt
+├── requirements-dev.txt
+├── tests/
+│   └── test_db.py
 ├── templates/
 │   ├── detection.html
 │   ├── index.html
@@ -72,3 +76,33 @@ static/snapshots/<session_name>/<class_name>/
 ```
 
 Each image is named with a timestamp.
+
+## Configuration
+
+You can override defaults via environment variables:
+
+- `MODEL_PATH` (default: `yolov10n.pt`)
+- `CAMERA_INDEX` (default: `0`)
+- `SNAPSHOT_DIR` (default: `static/snapshots`)
+- `DETECTION_DB` (default: `data/detections.db`)
+- `DETECTIONS_LIMIT` (default: `100`)
+
+## API Endpoints
+
+- `GET /api/sessions` returns session summaries
+- `GET /api/detections?session=<name>` returns recent detections
+- `GET /health` returns service status
+
+## Tests
+
+Install dev dependencies:
+
+```bash
+pip install -r requirements-dev.txt
+```
+
+Run tests:
+
+```bash
+pytest
+```
