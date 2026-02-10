@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Session Snapshots</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>📸 Snapshots for Session: {{ session }}</h1>
+    {% for class_name, images in snapshots.items() %}
+      <h2>{{ class_name }}</h2>
+      <div class="row">
+        {% for img in images %}
+          <img src="{{ img }}" width="200" style="margin: 5px;" />
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+</body>
+</html>

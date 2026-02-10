@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Real-Time Object Detection</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container center">
+    <h1>👁️ Welcome to Real-Time Object Detection</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form action="/start" method="POST">
+      <input type="text" name="session_name" placeholder="Enter session name (optional)">
+      <button class="btn start-btn" type="submit">▶ Start Detection</button>
+    </form>
+
+    <form action="/exit" method="POST">
+      <button class="btn start-btn" type="submit">⛔ Exit</button>
+    </form>
+  </div>
+</body>
+</html>

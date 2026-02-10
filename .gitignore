@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.log
+
+# Environments
+.env
+.env.*
+.venv/
+venv/
+env/
+
+# Snapshots
+snapshots/
+static/snapshots/
+
+# Model weights
+*.pt
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

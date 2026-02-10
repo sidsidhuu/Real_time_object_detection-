@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Live Detection</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script>
+    async function loadDetections() {
+      try {
+        const res = await fetch("/detections");
+        const data = await res.json();
+        const container = document.getElementById("detections");
+        container.innerHTML = "";
+
+        data.detections.forEach(d => {
+          const div = document.createElement("div");
+          div.className = "detection-item";
+          div.innerHTML = `<strong>${d.index}. ${d.class_name}</strong><br>Confidence: ${d.confidence}%<br>Time: ${d.timestamp}`;
+          container.appendChild(div);
+        });
+      } catch (err) {
+        console.error("Failed to fetch detections", err);
+      }
+    }
+
+    setInterval(loadDetections, 1000);
+  </script>
+</head>
+<body>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-messages">
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <div class="container row">
+
+    <div class="video">
+      <img src="{{ url_for('video_feed') }}" alt="Live Feed" />
+    </div>
+
+    <div class="sidebar">
+      <h2>📦 Detected Objects</h2>
+      <div id="detections" class="scroll-box">Loading...</div>
+
+      <form action="/stop" method="POST">
+        <button class="btn stop-btn" type="submit">⏹ Stop Detection</button>
+      </form>
+
+      <form action="/snapshots" method="GET">
+        <input type="hidden" name="session" value="{{ session_name }}">
+        <button class="btn stop-btn" type="submit">🖼 View Snapshots</button>
+      </form>
+
+      <form action="/exit" method="POST">
+        <button class="btn stop-btn" type="submit">⛔ Exit</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
